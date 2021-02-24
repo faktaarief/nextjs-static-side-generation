@@ -1,18 +1,24 @@
 import Head from 'next/head'
 import { Container, Row, Col } from 'react-bootstrap'
 import axios from 'axios'
+import pokemon from '../../pokemon.json'
 
-const getPokemon = async (key, name) => {
-  const { data } = await axios.get(`http://localhost:3000/api/pokemon?name=${escape(name)}`)
-  return data
+export async function getStaticPaths() {
+    return {
+        paths: pokemon.map(({ name: { english }}) => ({
+            params: {
+                name: english,
+            }
+        })),
+        fallback: false // See the "fallback" section below
+    }
 }
 
-export const getServerSideProps = async (context) => {
-    const data = await getPokemon(null, context.params.name)
+export async function getStaticProps(context) {
     return {
-        props: {
-            data: data
-        },
+      props: {
+          data: pokemon.filter(({ name: { english }}) =>  english === context.params.name)[0]
+      }
     }
 }
 
